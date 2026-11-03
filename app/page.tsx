@@ -1,25 +1,19 @@
-import { SiteHeader } from '@/components/site/site-header'
 import { Hero } from '@/components/site/hero'
-import { LearningPaths } from '@/components/site/learning-paths'
-import { ResourceLibrary } from '@/components/site/resource-library'
-import { Watch } from '@/components/site/watch'
-import { About } from '@/components/site/about'
-import { Newsletter } from '@/components/site/newsletter'
-import { SiteFooter } from '@/components/site/site-footer'
+import { JournalPreview } from '@/components/site/journal-preview'
+import { Journey } from '@/components/site/journey'
+import { SocialFeed } from '@/components/site/social-feed'
+import { LibraryPreview } from '@/components/site/library-preview'
+import { Founders } from '@/components/site/founders'
 
 export default function Home() {
   return (
-    <>
-      <SiteHeader />
-      <main>
-        <Hero />
-        <LearningPaths />
-        <ResourceLibrary />
-        <Watch />
-        <About />
-        <Newsletter />
-      </main>
-      <SiteFooter />
-    </>
+    <main>
+      <Hero />
+      <JournalPreview />
+      <Journey />
+      <SocialFeed />
+      <LibraryPreview />
+      <Founders />
+    </main>
   )
 }

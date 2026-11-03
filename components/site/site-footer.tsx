@@ -1,48 +1,44 @@
-import { ArrowUpRight } from 'lucide-react'
+import Link from 'next/link'
 import { navLinks, profile } from '@/lib/content'
-
-const socials = [
-  { label: 'Instagram', handle: profile.instagramHandle, href: profile.instagram },
-  { label: 'LinkedIn', handle: profile.linkedinHandle, href: profile.linkedin },
-  { label: 'Email', handle: profile.email, href: `mailto:${profile.email}` },
-]
+import { InstagramIcon, LinkedInIcon } from './brand-icons'
 
 export function SiteFooter() {
   return (
-    <footer className="bg-background">
-      <div className="mx-auto flex max-w-6xl flex-col gap-12 px-5 py-16">
-        <div className="grid gap-4 md:grid-cols-3">
-          {socials.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target={social.label === 'Email' ? undefined : '_blank'}
-              rel={social.label === 'Email' ? undefined : 'noopener noreferrer'}
-              className="group flex items-center justify-between rounded-xl border bg-card p-5 transition-colors hover:border-primary"
-            >
-              <span className="flex flex-col gap-1">
-                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                  {social.label}
-                </span>
-                <span className="font-medium">{social.handle}</span>
-              </span>
-              <ArrowUpRight
-                className="size-5 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </a>
-          ))}
-        </div>
-        <div className="flex flex-col justify-between gap-4 border-t pt-8 text-sm text-muted-foreground md:flex-row md:items-center">
-          <p>© 2026 Ben Thomas. Free to learn, free to share.</p>
-          <nav aria-label="Footer" className="flex gap-6">
+    <footer className="bg-secondary text-secondary-foreground">
+      <div className="mx-auto flex max-w-6xl flex-col gap-12 px-5 py-14">
+        <p className="text-balance text-3xl font-semibold tracking-tight md:text-5xl">
+          Still drawing the line.
+          <span className="text-secondary-foreground/50"> See you tomorrow.</span>
+        </p>
+        <div className="flex flex-col justify-between gap-8 border-t border-secondary-foreground/15 pt-8 md:flex-row md:items-center">
+          <nav aria-label="Footer" className="flex flex-wrap gap-6">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="hover:text-foreground">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-secondary-foreground/70 transition-colors hover:text-secondary-foreground"
+              >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
+          <div className="flex items-center gap-5 text-sm">
+            <a href={`mailto:${profile.email}`} className="text-secondary-foreground/70 hover:text-secondary-foreground">
+              {profile.email}
+            </a>
+            <a href={profile.instagram} target="_blank" rel="noreferrer" className="hover:text-primary-foreground">
+              <InstagramIcon className="size-4" />
+              <span className="sr-only">Instagram</span>
+            </a>
+            <a href={profile.linkedin} target="_blank" rel="noreferrer">
+              <LinkedInIcon className="size-4" />
+              <span className="sr-only">LinkedIn</span>
+            </a>
+          </div>
         </div>
+        <p className="font-mono text-xs text-secondary-foreground/50">
+          © {new Date().getFullYear()} {profile.fullName} · {profile.domain}
+        </p>
       </div>
     </footer>
   )

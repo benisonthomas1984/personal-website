@@ -1,6 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { SiteHeader } from '@/components/site/site-header'
+import { SiteFooter } from '@/components/site/site-footer'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -13,9 +15,13 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Ben Thomas — Learn to Build AI Agents, Free',
+  title: {
+    default: 'Ben Thomas — Not a straight line',
+    template: '%s — Ben Thomas',
+  },
   description:
-    'Ben Thomas is a CEO and AI entrepreneur helping companies build AI agents. Free guides, playbooks, prompt packs, templates and videos to help you learn and ship AI.',
+    'The working journal of Ben Thomas, CEO and AI entrepreneur. Daily notes on AI, entrepreneurship and geopolitics, plus the prompts, guides and toolkits I use, shared openly.',
+  metadataBase: new URL('https://benthomas.life'),
   generator: 'v0.app',
   icons: {
     icon: [
@@ -28,7 +34,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#f8fafc',
+  themeColor: '#f5f7fa',
 }
 
 export default function RootLayout({
@@ -42,7 +48,9 @@ export default function RootLayout({
       className={`bg-background ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased" suppressHydrationWarning>
+        <SiteHeader />
         {children}
+        <SiteFooter />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
