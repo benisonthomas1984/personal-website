@@ -12,9 +12,9 @@ The front end in this repository is the **approved design**. It must be reproduc
 
 - Do **not** change any markup, Tailwind classes, spacing, colours, fonts, the graph-paper background, highlighter marks, layout, copy hierarchy or animations in `app/` (public routes) or `components/`.
 - Do **not** rename, restyle or "improve" components. No new sections on the public site unless the owner asks.
-- The **only** change allowed in public components is **where the data comes from**: replace static imports from `lib/content.ts` with server-side data functions that return **exactly the same TypeScript types** (see §4).
+- The **only** change allowed in public components is **where the data comes from**: replace static imports from `lib/content.ts` with server-side data functions that return **exactly the same TypeScript types** (see §3).
 - Every string, image, date, number, category and link currently visible on the site must become editable from the admin panel. Nothing visible may remain hard-coded.
-- Before/after screenshots of every public page must match (see §13 acceptance criteria).
+- Before/after screenshots of every public page must match (see §12 acceptance criteria).
 
 > Recommended technique: keep the existing types in `lib/content.ts` as the **contract**. Build `lib/data/*.ts` functions (`getJournalPosts()`, `getPost(slug)`, `getLibrary()`, `getInstagramPosts()`, `getLinkedInPosts()`, `getProfile()`, `getSiteCopy()`…) that read from the database and map rows → those exact types. Then swap imports in components. If a component renders correctly with the static data, it will render identically with database data.
 
@@ -30,7 +30,7 @@ The front end in this repository is the **approved design**. It must be reproduc
 | Journal (daily blog) | `/`, `/journal`, `/journal/[slug]` | `journalPosts`, `journalCategories` | Posts, categories, dates, read time, excerpt, body, cover image (optional), SEO |
 | Library (free resources) | `/`, `/library`, `/library/[slug]` | `library` | Resources, kinds, formats, files, previews (prompts / chapters / tools / video chapters) |
 | Instagram | `/`, `/instagram` | `instagramPosts` | **Auto-synced** from Instagram + manual overrides |
-| LinkedIn | `/`, `/linkedin` | `linkedinPosts` | **Manual / semi-automatic** (see §7 for why) |
+| LinkedIn | `/`, `/linkedin` | `linkedinPosts` | **Manual / semi-automatic** (see §6 for why) |
 | Images | Everywhere | `public/images/*.png` | Media library (upload, replace, alt text) |
 
 Hard-coded image references that must become media fields:
@@ -38,26 +38,7 @@ Hard-coded image references that must become media fields:
 
 ---
 
-## 2. Recommended stack
-
-Keep everything on Vercel so the owner has one place to manage it.
-
-| Concern | Choice | Notes |
-|---|---|---|
-| Framework | Next.js 16 App Router (already in repo) | Admin lives at `/admin` in the same app |
-| Database | **Neon Postgres** | Via Vercel Marketplace integration |
-| ORM | Drizzle ORM | Schema in `lib/db/schema.ts`, migrations committed |
-| Auth | **Better Auth**, email + password | Admin-only. **Public sign-up disabled.** Seed one owner account; owner can invite editors |
-| Media storage | **Vercel Blob** | All uploads + re-hosted Instagram/LinkedIn media |
-| Scheduled jobs | **Vercel Cron** | Instagram sync, token refresh, scheduled publishing |
-| Rich text editor | Tiptap (or similar) | Stored as JSON, rendered with the existing article styles |
-| Caching | Next.js `"use cache"` + `cacheTag`, `revalidateTag(tag, 'max')` / `updateTag` on publish | Public pages stay static and fast; edits appear within seconds |
-| Image delivery | `next/image` with Blob domains whitelisted in `next.config` | |
-| Email (optional, later) | Resend | Only if newsletter is added later; **no contact form** on the site |
-
----
-
-## 3. Roles & security
+## 2. Roles & security
 
 - **Roles:** `owner` (everything, including settings and integrations), `editor` (content only, cannot touch integrations, users or settings).
 - `/admin/**` protected in `proxy.ts` **and** re-checked in every server action / route handler (never trust the proxy alone).
@@ -70,7 +51,7 @@ Keep everything on Vercel so the owner has one place to manage it.
 
 ---
 
-## 4. Data model
+## 3. Data model
 
 All tables have `id` (uuid), `created_at`, `updated_at`. Content tables also have `status` (`draft | scheduled | published | archived`), `published_at`, `created_by`, `updated_by`.
 
@@ -79,7 +60,7 @@ Store **raw values** in the database and **format at render time** so the UI sho
 - Dates like `Nov 3, 2026`, `Nov 3`, `2d`, `1w` → store `timestamptz`, format with the same patterns per component.
 - Read time `6 min` → auto-calculated from body word count (≈ 225 wpm), overridable.
 
-### 4.1 Site & profile (singletons)
+### 3.1 Site & profile (singletons)
 
 ```
 site_settings (single row)
@@ -109,7 +90,7 @@ site_copy                        -- every hard-coded string on the public site
 
 `site_copy` keys must be seeded by extracting **every** literal string currently in `components/site/*.tsx`, `app/**/page.tsx` headings and empty-state text. Highlighted (yellow marker) words are stored as `highlight` so the editor can choose which words get the marker.
 
-### 4.2 Journal (daily blog)
+### 3.2 Journal (daily blog)
 
 ```
 journal_categories
@@ -134,7 +115,7 @@ journal_posts
 - Slug auto-generated from title, editable, unique, with redirects kept if changed (`journal_redirects` table).
 - Also generate **RSS feed** (`/journal/rss.xml`) and include posts in `sitemap.xml`.
 
-### 4.3 Library (free resources)
+### 3.3 Library (free resources)
 
 ```
 library_items
@@ -155,7 +136,7 @@ library_assets                 -- the actual downloadable / linked files
   library_item_id fk
   format          text         -- matches one of item.formats
   type            enum('file','link')
-  media_id        fk media nullable   -- PDFs uploaded to Blob
+  media_id        fk media nullable   -- uploaded PDFs
   url             text nullable       -- Notion / YouTube / Figma links
   label           text
   download_count  int default 0
@@ -171,7 +152,7 @@ The admin form switches its editor based on `preview.type`. Validate with a Zod 
 
 Downloads go through `/api/library/[slug]/download?format=PDF` so we can count downloads and swap files without breaking links. All resources stay **free, no email gate** (the site is about free education, not selling).
 
-### 4.4 Instagram
+### 3.4 Instagram
 
 ```
 instagram_posts
@@ -180,8 +161,8 @@ instagram_posts
   permalink         text
   caption           text
   caption_override  text nullable    -- editor can shorten/clean caption shown on site
-  thumbnail_media_id fk media        -- re-hosted cover image (Blob)
-  video_media_id    fk media nullable -- re-hosted reel video (optional, see §6.4)
+  thumbnail_media_id fk media        -- re-hosted cover image
+  video_media_id    fk media nullable -- re-hosted reel video (optional, see §5.4)
   carousel_media    jsonb            -- [{ media_id, type }] for carousels
   alt_text          text             -- required before it can be visible
   posted_at         timestamptz
@@ -197,7 +178,7 @@ instagram_posts
 
 The site's `stat` field = `view_count` for reels, `like_count` for photos/carousels, formatted compact (`412K`).
 
-### 4.5 LinkedIn
+### 3.5 LinkedIn
 
 ```
 linkedin_posts
@@ -215,11 +196,11 @@ linkedin_posts
   source            enum('manual','embed','api')
 ```
 
-### 4.6 Media library
+### 3.6 Media library
 
 ```
 media
-  blob_url, pathname, content_type, size_bytes
+  url, storage_key, content_type, size_bytes
   width, height, blurhash/lqip (for nice loading)
   alt_text text (required for images)
   caption text
@@ -229,7 +210,7 @@ media
 
 Rules: images converted to WebP/AVIF on upload, max 10 MB images, 200 MB video, 50 MB PDFs. Deleting media that is in use is blocked.
 
-### 4.7 Integrations & jobs
+### 3.7 Integrations & jobs
 
 ```
 integrations
@@ -245,7 +226,7 @@ sync_runs
 
 ---
 
-## 5. Admin panel (`/admin`)
+## 4. Admin panel (`/admin`)
 
 Uses its own simple admin layout (it does **not** need the public graph-paper design; shadcn/ui components are fine). Must be usable on a phone, because Ben will often publish on the move.
 
@@ -256,7 +237,7 @@ Uses its own simple admin layout (it does **not** need the public graph-paper de
 | **Journal → Categories** | Add / rename / reorder / delete (blocked if posts use it, or reassign) |
 | **Library** | List + drag-to-reorder. Edit form with preview-type editor, file uploads per format, external links, "What's inside" list |
 | **Instagram** | Connect / reconnect account, "Sync now" button, grid of synced posts with toggles: visible, pinned, caption override, alt text. Manual "add post by URL" fallback |
-| **LinkedIn** | Add post (paste URL → fills URN + embed; paste text, upload image, enter counts), edit counts, visible/pinned. Optional API connect (see §7) |
+| **LinkedIn** | Add post (paste URL → fills URN + embed; paste text, upload image, enter counts), edit counts, visible/pinned. Optional API connect (see §6) |
 | **Pages & copy** | Edit every `site_copy` key, grouped by page/section, with a live preview of that section. Choose highlighted words |
 | **Profile & links** | `site_settings` form: name, role, email, socials, photos |
 | **Navigation** | Reorder / rename / hide links |
@@ -272,9 +253,9 @@ Editor experience requirements:
 
 ---
 
-## 6. Instagram integration (automatic)
+## 5. Instagram integration (automatic)
 
-### 6.1 Which API
+### 5.1 Which API
 
 Use the **Instagram API with Instagram Login** (Meta). The old *Instagram Basic Display API* was shut down in December 2024 and must not be used.
 
@@ -286,7 +267,7 @@ Requirements on Ben's side:
 
 > Verify scope names and metrics against Meta's current docs at implementation time; Meta renames metrics frequently (e.g. `plays`/`impressions` were replaced by `views` in 2025).
 
-### 6.2 Connect flow (admin)
+### 5.2 Connect flow (admin)
 
 1. Owner clicks **Connect Instagram** in `/admin/instagram`.
 2. OAuth redirect to Instagram → callback route `/api/integrations/instagram/callback`.
@@ -294,9 +275,9 @@ Requirements on Ben's side:
 4. Store encrypted token + expiry in `integrations`.
 5. Run first full sync immediately.
 
-### 6.3 Sync job
+### 5.3 Sync job
 
-Vercel Cron, every 30–60 minutes (`/api/cron/instagram-sync`, protected by `CRON_SECRET`):
+Scheduled job, every 30–60 minutes (`/api/cron/instagram-sync`, protected by `CRON_SECRET`):
 
 1. `GET https://graph.instagram.com/me/media?fields=id,caption,media_type,media_product_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,children{media_type,media_url,thumbnail_url}` with pagination.
 2. Map type:
@@ -304,40 +285,40 @@ Vercel Cron, every 30–60 minutes (`/api/cron/instagram-sync`, protected by `CR
    - `media_type = CAROUSEL_ALBUM` → `carousel`
    - `media_type = IMAGE` → `photo`
 3. For reels, fetch insights (`/{media-id}/insights?metric=views`) for the view count.
-4. **Re-host media in Vercel Blob.** Instagram `media_url` links are signed CDN URLs that **expire**; never hot-link them on the site. Download the thumbnail (and optionally the video) once, store in Blob, save `media_id`.
+4. **Re-host media in the site's own media storage.** Instagram `media_url` links are signed CDN URLs that **expire**; never hot-link them on the site. Download the thumbnail (and optionally the video) once, store it, save `media_id`.
 5. Upsert by `ig_media_id`. **Never overwrite** editor fields (`caption_override`, `alt_text`, `visible`, `pinned`, `position_override`).
 6. Refresh counts (likes/views/comments) on every run for the latest ~50 posts.
 7. Posts deleted on Instagram → mark `visible = false` (do not hard-delete).
 8. New posts default to `visible = true`, with a suggested alt text generated from the caption (editor can fix).
 9. Revalidate the `instagram` cache tag.
 
-### 6.4 Showing reels on the site
+### 5.4 Showing reels on the site
 
 The design shows reels as a grid of thumbnails with a play badge and view count. On click, either:
 - **Option A (default, simplest):** open the reel on Instagram (`permalink`) in a new tab.
-- **Option B:** play the re-hosted video in a lightbox on the site (keeps visitors on the site). Requires storing video in Blob (storage cost).
+- **Option B:** play the re-hosted video in a lightbox on the site (keeps visitors on the site). Requires storing the video files (storage cost).
 - **Option C:** Instagram oEmbed (`instagram_oembed`) requires Meta App Review for oEmbed Read. Avoid unless needed.
 
 Ship A first; B is a toggle in settings.
 
-### 6.5 Token maintenance
+### 5.5 Token maintenance
 
 - Daily cron: if token expires in < 10 days, call `GET https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=…` and store the new token.
 - If refresh fails → status `expired`, show a red banner in the admin dashboard and email the owner, keep showing the last synced posts on the site (never show an empty feed).
 
-### 6.6 Manual fallback
+### 5.6 Manual fallback
 
 "Add Instagram post" form (paste permalink, upload cover image, type, caption, counts). Used if the API is down or for posts from other accounts (collabs).
 
 ---
 
-## 7. LinkedIn integration (manual first; API is restricted)
+## 6. LinkedIn integration (manual first; API is restricted)
 
-### 7.1 The reality
+### 6.1 The reality
 
 LinkedIn does **not** offer a self-serve API to read a **personal profile's** posts. The permission needed (`r_member_social`) is restricted to approved LinkedIn partners. Scraping LinkedIn violates its terms and can get the account restricted. **Do not scrape.**
 
-### 7.2 What to build (in priority order)
+### 6.2 What to build (in priority order)
 
 **Level 1 — Manual entry with smart paste (build this):**
 - In `/admin/linkedin`, Ben pastes the post URL.
@@ -352,13 +333,13 @@ LinkedIn does **not** offer a self-serve API to read a **personal profile's** po
 
 **Level 4 — Personal posts via API:** only possible by applying to LinkedIn's partner programme. Out of scope for v1.
 
-### 7.3 Cross-posting helper (nice to have)
+### 6.3 Cross-posting helper (nice to have)
 
 When a journal post is published, the admin offers "Copy as LinkedIn post", which prepares a LinkedIn-length version of the text to paste, and later "Add to LinkedIn feed" once it is posted.
 
 ---
 
-## 8. Caching & publishing
+## 7. Caching & publishing
 
 - Public data functions use `"use cache"` with tags: `profile`, `copy`, `nav`, `journal`, `journal:{slug}`, `library`, `library:{slug}`, `instagram`, `linkedin`.
 - Every admin mutation calls `updateTag(...)` (Server Action, read-your-writes) for the affected tags.
@@ -368,7 +349,7 @@ When a journal post is published, the admin offers "Copy as LinkedIn post", whic
 
 ---
 
-## 9. SEO & sharing
+## 8. SEO & sharing
 
 - Per-page `generateMetadata` from the database (title, description, OG image).
 - Auto OG images for journal posts (title + category in the site's design) via `next/og`.
@@ -379,13 +360,13 @@ When a journal post is published, the admin offers "Copy as LinkedIn post", whic
 
 ---
 
-## 10. API surface (internal)
+## 9. API surface (internal)
 
 Server Actions for all admin mutations. Route handlers only where needed:
 
 | Route | Purpose |
 |---|---|
-| `POST /api/upload` | Signed client uploads to Vercel Blob (admin only) |
+| `POST /api/upload` | Signed uploads to media storage (admin only) |
 | `GET /api/integrations/instagram/connect` · `/callback` | Instagram OAuth |
 | `GET /api/cron/instagram-sync` | Cron sync (requires `CRON_SECRET`) |
 | `GET /api/cron/instagram-token-refresh` | Daily token refresh |
@@ -393,26 +374,23 @@ Server Actions for all admin mutations. Route handlers only where needed:
 | `GET /api/library/[slug]/download` | Counts and redirects to the file |
 | `GET /journal/rss.xml` | RSS |
 
-`vercel.json` crons:
-```json
-{
-  "crons": [
-    { "path": "/api/cron/publish-scheduled", "schedule": "*/5 * * * *" },
-    { "path": "/api/cron/instagram-sync", "schedule": "*/30 * * * *" },
-    { "path": "/api/cron/instagram-token-refresh", "schedule": "0 3 * * *" }
-  ]
-}
-```
+Scheduled jobs (any scheduler that can call these routes):
+
+| Route | Schedule |
+|---|---|
+| `/api/cron/publish-scheduled` | Every 5 minutes (`*/5 * * * *`) |
+| `/api/cron/instagram-sync` | Every 30 minutes (`*/30 * * * *`) |
+| `/api/cron/instagram-token-refresh` | Daily (`0 3 * * *`) |
 
 ---
 
-## 11. Environment variables
+## 10. Environment variables
 
 | Variable | Source |
 |---|---|
-| `DATABASE_URL` | Neon integration (auto) |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob (auto) |
-| `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` | Generate / project URL |
+| `DATABASE_URL` | Database connection string |
+| Media storage credentials | Depend on the storage provider chosen |
+| `AUTH_SECRET`, `AUTH_URL` | Random secret for signing sessions / site URL |
 | `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `INSTAGRAM_REDIRECT_URI` | Meta developer app |
 | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` | Only if Level 3 is approved |
 | `TOKEN_ENCRYPTION_KEY` | 32-byte random key |
@@ -420,17 +398,17 @@ Server Actions for all admin mutations. Route handlers only where needed:
 
 ---
 
-## 12. Migration & seeding
+## 11. Migration & seeding
 
 1. Create schema + migrations.
-2. Seed script `scripts/seed.ts` that imports **everything from the current `lib/content.ts`** and all hard-coded strings and images, uploads `public/images/*` to Blob, and inserts them. After seeding, the site must look identical with database data.
+2. Seed script `scripts/seed.ts` that imports **everything from the current `lib/content.ts`** and all hard-coded strings and images, uploads `public/images/*` to media storage, and inserts them. After seeding, the site must look identical with database data.
 3. Seed the owner account (email from env), and force a password change on first login.
 4. Once verified, `lib/content.ts` keeps only the **types** (the contract); static arrays are deleted.
 5. The current placeholder images are AI-generated stand-ins. Ben replaces them with real photos via the Media library.
 
 ---
 
-## 13. Acceptance criteria
+## 12. Acceptance criteria
 
 - [ ] Every public page (`/`, `/journal`, `/journal/[slug]`, `/library`, `/library/[slug]`, `/instagram`, `/linkedin`) matches the current design pixel-for-pixel at 375px, 768px and 1440px (screenshot diff).
 - [ ] No visible text, number, date, category, link or image is hard-coded; everything is editable in `/admin`.
@@ -446,7 +424,7 @@ Server Actions for all admin mutations. Route handlers only where needed:
 
 ---
 
-## 14. Out of scope for v1 (possible later)
+## 13. Out of scope for v1 (possible later)
 
 - Newsletter / email capture (the site deliberately has none today).
 - Contact form (not wanted; email link only).
