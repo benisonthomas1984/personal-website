@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Ben Thomas — Not a straight line',
+    default: 'Ben Thomas — Learning AI out loud',
     template: '%s — Ben Thomas',
   },
   description:

@@ -34,29 +34,28 @@
 
 :root {
   color-scheme: light;
-  /* porcelain paper */
-  --background: oklch(0.975 0.004 250);
+  /* cool paper */
+  --background: oklch(0.985 0.004 240);
   /* ink */
-  --foreground: oklch(0.19 0.03 262);
-  --card: oklch(0.995 0.002 250);
-  --card-foreground: oklch(0.19 0.03 262);
-  --popover: oklch(0.995 0.002 250);
-  --popover-foreground: oklch(0.19 0.03 262);
-  /* cobalt — gained */
-  --primary: oklch(0.48 0.2 262);
-  --primary-foreground: oklch(0.985 0.004 250);
-  /* ink band */
-  --secondary: oklch(0.19 0.03 262);
-  --secondary-foreground: oklch(0.975 0.004 250);
-  --muted: oklch(0.945 0.008 250);
-  --muted-foreground: oklch(0.48 0.025 260);
-  /* coral signal — lost */
-  --accent: oklch(0.66 0.17 35);
-  --accent-foreground: oklch(0.19 0.03 262);
+  --foreground: oklch(0.21 0.035 262);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.035 262);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.035 262);
+  /* cobalt ink */
+  --primary: oklch(0.5 0.19 260);
+  --primary-foreground: oklch(0.985 0.004 240);
+  --secondary: oklch(0.21 0.035 262);
+  --secondary-foreground: oklch(0.985 0.004 240);
+  --muted: oklch(0.955 0.008 245);
+  --muted-foreground: oklch(0.47 0.03 260);
+  /* highlighter */
+  --accent: oklch(0.89 0.16 98);
+  --accent-foreground: oklch(0.21 0.035 262);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.01 250);
-  --input: oklch(0.9 0.01 250);
-  --ring: oklch(0.48 0.2 262);
+  --border: oklch(0.9 0.012 250);
+  --input: oklch(0.9 0.012 250);
+  --ring: oklch(0.5 0.19 260);
   --radius: 0.5rem;
 }
 
@@ -70,29 +69,33 @@
 }
 
 @layer utilities {
+  .highlight {
+    background-image: linear-gradient(
+      transparent 58%,
+      var(--accent) 58%,
+      var(--accent) 92%,
+      transparent 92%
+    );
+    padding-inline: 0.08em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .grid-paper {
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .grid-paper-ink {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
   .no-scrollbar {
     scrollbar-width: none;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
-  }
-}
-
-@keyframes draw-line {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.journey-path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: draw-line 2.4s cubic-bezier(0.65, 0, 0.35, 1) 0.3s forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .journey-path {
-    animation: none;
-    stroke-dashoffset: 0;
   }
 }

@@ -12,73 +12,10 @@ export const profile = {
 
 export const navLinks = [
   { label: 'Journal', href: '/journal' },
+  { label: 'Instagram', href: '/instagram' },
+  { label: 'LinkedIn', href: '/linkedin' },
   { label: 'Library', href: '/library' },
-  { label: 'Feed', href: '/#feed' },
-  { label: 'Journey', href: '/#journey' },
   { label: 'Founders', href: '/#founders' },
-]
-
-/* ---------- Journey: the line that isn't straight ---------- */
-
-export type JourneyMoment = {
-  year: string
-  title: string
-  note: string
-  kind: 'gained' | 'lost' | 'turn'
-  /** 0 (lowest) – 100 (highest) */
-  level: number
-}
-
-export const journey: JourneyMoment[] = [
-  {
-    year: '2009',
-    title: 'First venture',
-    note: 'Started with more confidence than knowledge. Learned what a payroll week feels like.',
-    kind: 'gained',
-    level: 46,
-  },
-  {
-    year: '2012',
-    title: 'Lost it',
-    note: 'The company folded. I kept the lessons and very little else.',
-    kind: 'lost',
-    level: 12,
-  },
-  {
-    year: '2014',
-    title: 'Started again',
-    note: 'Smaller, slower, more honest. Revenue before vanity.',
-    kind: 'turn',
-    level: 38,
-  },
-  {
-    year: '2018',
-    title: 'Scaled a team',
-    note: 'Went from doing everything to building people who do it better.',
-    kind: 'gained',
-    level: 70,
-  },
-  {
-    year: '2020',
-    title: 'The hard year',
-    note: 'Markets shut. Clients paused. We cut, rebuilt, and stayed.',
-    kind: 'lost',
-    level: 34,
-  },
-  {
-    year: '2023',
-    title: 'Went all in on AI',
-    note: 'Started building AI agents for companies. Everything changed again.',
-    kind: 'turn',
-    level: 64,
-  },
-  {
-    year: 'Now',
-    title: 'Writing it down',
-    note: 'Sharing what I learn, daily, so the next founder loses less than I did.',
-    kind: 'gained',
-    level: 88,
-  },
 ]
 
 /* ---------- Journal ---------- */
@@ -429,32 +366,203 @@ export function getLibraryItem(slug: string) {
   return library.find((item) => item.slug === slug)
 }
 
-/* ---------- Social feed ---------- */
+/* ---------- Instagram ---------- */
 
-export const reels = [
-  { title: 'The agent that replaced my Monday', views: '412K', image: '/images/ben-desk.png' },
-  { title: 'What I told a room of 300 founders', views: '1.2M', image: '/images/ben-stage.png' },
-  { title: 'Scoping an AI project in 60 seconds', views: '268K', image: '/images/ben-workshop.png' },
-  { title: 'The question I ask every founder', views: '890K', image: '/images/ben-thomas.png' },
+export type InstagramPost = {
+  id: string
+  type: 'reel' | 'photo' | 'carousel'
+  image: string
+  alt: string
+  caption: string
+  date: string
+  /** views for reels, likes for photos and carousels */
+  stat: string
+}
+
+export const instagramPosts: InstagramPost[] = [
+  {
+    id: 'ig-1',
+    type: 'reel',
+    image: '/images/ben-desk.png',
+    alt: 'Ben at his desk recording a reel',
+    caption: 'The agent that replaced my Monday. Full breakdown of what it does and what it does not.',
+    date: 'Nov 3',
+    stat: '412K',
+  },
+  {
+    id: 'ig-2',
+    type: 'carousel',
+    image: '/images/ig-whiteboard.png',
+    alt: 'Ben sketching an AI workflow on a whiteboard',
+    caption: 'How I map a workflow before building any agent. Swipe for the 6 boxes I always draw.',
+    date: 'Nov 2',
+    stat: '38.4K',
+  },
+  {
+    id: 'ig-3',
+    type: 'reel',
+    image: '/images/ben-stage.png',
+    alt: 'Ben speaking on stage to founders',
+    caption: 'What I told a room of 300 founders about losing a company at 29.',
+    date: 'Nov 1',
+    stat: '1.2M',
+  },
+  {
+    id: 'ig-4',
+    type: 'photo',
+    image: '/images/ig-airport.png',
+    alt: 'Ben working from an airport lounge at dawn',
+    caption: '5:40am, third country this month. The trade routes are shifting and so am I.',
+    date: 'Oct 31',
+    stat: '24.1K',
+  },
+  {
+    id: 'ig-5',
+    type: 'reel',
+    image: '/images/ig-podcast.png',
+    alt: 'Ben speaking into a podcast microphone',
+    caption: 'Geopolitics for founders in 60 seconds: why tariffs are a small-company advantage.',
+    date: 'Oct 30',
+    stat: '688K',
+  },
+  {
+    id: 'ig-6',
+    type: 'reel',
+    image: '/images/ben-workshop.png',
+    alt: 'Ben running a workshop with a leadership team',
+    caption: 'Scoping an AI project in 60 seconds. The one question that kills bad ideas early.',
+    date: 'Oct 29',
+    stat: '268K',
+  },
+  {
+    id: 'ig-7',
+    type: 'photo',
+    image: '/images/ben-thomas.png',
+    alt: 'Portrait of Ben Thomas',
+    caption: 'Fourteen years, two companies lost, one lesson: ask for help earlier than your pride wants.',
+    date: 'Oct 28',
+    stat: '51.7K',
+  },
+  {
+    id: 'ig-8',
+    type: 'carousel',
+    image: '/images/ig-podcast.png',
+    alt: 'Ben in the studio between takes',
+    caption: '10 prompts I use every week as a CEO. Save this one.',
+    date: 'Oct 27',
+    stat: '92.3K',
+  },
+  {
+    id: 'ig-9',
+    type: 'reel',
+    image: '/images/ig-whiteboard.png',
+    alt: 'Ben explaining RAG on a whiteboard',
+    caption: 'Your RAG is not broken. Your documents are. Here is the fix.',
+    date: 'Oct 26',
+    stat: '354K',
+  },
+  {
+    id: 'ig-10',
+    type: 'photo',
+    image: '/images/ben-stage.png',
+    alt: 'Ben on stage at a founders summit',
+    caption: 'Thank you Dubai. 40 founders stayed back for questions until the lights went off.',
+    date: 'Oct 24',
+    stat: '33.9K',
+  },
+  {
+    id: 'ig-11',
+    type: 'reel',
+    image: '/images/ig-airport.png',
+    alt: 'Ben recording a reel on the move',
+    caption: 'The question I ask every founder before I agree to build anything.',
+    date: 'Oct 22',
+    stat: '890K',
+  },
+  {
+    id: 'ig-12',
+    type: 'carousel',
+    image: '/images/ben-desk.png',
+    alt: 'Ben at his desk with notes',
+    caption: 'My full AI stack, October edition. What I added, what I dropped.',
+    date: 'Oct 20',
+    stat: '61.2K',
+  },
 ]
 
-export const linkedinPosts = [
+/* ---------- LinkedIn ---------- */
+
+export type LinkedInPost = {
+  id: string
+  date: string
+  topic: 'AI' | 'Entrepreneurship' | 'Geopolitics' | 'Leadership'
+  text: string
+  image?: string
+  imageAlt?: string
+  reactions: string
+  comments: string
+  reposts: string
+}
+
+export const linkedinPosts: LinkedInPost[] = [
   {
+    id: 'li-1',
     date: '2d',
-    text: 'I lost a company at 29. The lesson was not "never give up". It was "ask for help four months earlier than your pride wants to."',
+    topic: 'Entrepreneurship',
+    text: 'I lost a company at 29.\n\nThe lesson was not "never give up". It was "ask for help four months earlier than your pride wants to."\n\nThose four months cost more than the entire first year of the business.',
     reactions: '8,412',
     comments: '612',
+    reposts: '1,104',
   },
   {
-    date: '4d',
-    text: 'Unpopular opinion: your first AI agent should do the most boring job in your company. Boring is measurable. Measurable gets funded.',
+    id: 'li-2',
+    date: '3d',
+    topic: 'AI',
+    text: 'Unpopular opinion: your first AI agent should do the most boring job in your company.\n\nBoring is measurable. Measurable gets funded. Funded gets a second agent.',
+    image: '/images/ig-whiteboard.png',
+    imageAlt: 'Ben mapping an agent workflow on a whiteboard',
     reactions: '5,930',
     comments: '388',
+    reposts: '702',
   },
   {
-    date: '1w',
-    text: 'Every trade disruption creates a window. Big companies need a quarter to react. You need a week and a clear head.',
+    id: 'li-3',
+    date: '5d',
+    topic: 'Geopolitics',
+    text: 'Every trade disruption creates a window.\n\nBig companies need a quarter to re-route supply chains. A focused founder with AI doing research, translation and outreach needs a week and a clear head.',
     reactions: '11,204',
     comments: '904',
+    reposts: '2,318',
+  },
+  {
+    id: 'li-4',
+    date: '1w',
+    topic: 'Leadership',
+    text: 'Treat AI agents like new hires, not new features.\n\nGive them a job description. Give them a manager. Review their work every Friday. The companies doing this are getting real value. The rest are shipping demos.',
+    image: '/images/ben-workshop.png',
+    imageAlt: 'Ben running a workshop with a leadership team',
+    reactions: '7,061',
+    comments: '455',
+    reposts: '980',
+  },
+  {
+    id: 'li-5',
+    date: '1w',
+    topic: 'AI',
+    text: 'Most RAG failures are a librarian problem, not a model problem.\n\nIf your documents are a mess, your agent will be confidently wrong. Fix the shelves before you blame the model.',
+    reactions: '4,288',
+    comments: '271',
+    reposts: '515',
+  },
+  {
+    id: 'li-6',
+    date: '2w',
+    topic: 'Entrepreneurship',
+    text: 'People ask why I still take calls with first-time founders.\n\nHonestly, I learn more from those calls than almost anything else in my week. They see problems without the scar tissue.',
+    image: '/images/ben-stage.png',
+    imageAlt: 'Ben speaking to a room of founders',
+    reactions: '9,840',
+    comments: '733',
+    reposts: '1,422',
   },
 ]

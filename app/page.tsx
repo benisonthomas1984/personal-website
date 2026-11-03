@@ -1,7 +1,7 @@
 import { Hero } from '@/components/site/hero'
 import { JournalPreview } from '@/components/site/journal-preview'
-import { Journey } from '@/components/site/journey'
-import { SocialFeed } from '@/components/site/social-feed'
+import { InstagramSection } from '@/components/site/instagram-section'
+import { LinkedInSection } from '@/components/site/linkedin-section'
 import { LibraryPreview } from '@/components/site/library-preview'
 import { Founders } from '@/components/site/founders'
 
@@ -10,8 +10,8 @@ export default function Home() {
     <main>
       <Hero />
       <JournalPreview />
-      <Journey />
-      <SocialFeed />
+      <InstagramSection />
+      <LinkedInSection />
       <LibraryPreview />
       <Founders />
     </main>

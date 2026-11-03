@@ -4,10 +4,10 @@ import { InstagramIcon, LinkedInIcon } from './brand-icons'
 
 export function SiteFooter() {
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="grid-paper-ink bg-secondary text-secondary-foreground">
       <div className="mx-auto flex max-w-6xl flex-col gap-12 px-5 py-14">
         <p className="text-balance text-3xl font-semibold tracking-tight md:text-5xl">
-          Still drawing the line.
+          Still learning <span className="text-accent">out loud.</span>
           <span className="text-secondary-foreground/50"> See you tomorrow.</span>
         </p>
         <div className="flex flex-col justify-between gap-8 border-t border-secondary-foreground/15 pt-8 md:flex-row md:items-center">
